@@ -27,7 +27,9 @@ double RTONF = 26.713761;   // R*T/F -> (???)
 // Tissue properties
 double beta = 1400.0;       // Surface area-to-volume ratio -> cm^-1
 double Cm = 0.185;          // Cell capacitance per unit surface area -> uF/ (???)^2 (ten Tusscher)
-double sigma = 0.1;         // Conductivity (isotropic) -> mS/cm (Sachetto)
+double sigma_long = 1.334;         // Conductivity -> mS/cm
+double sigma_trans = 0.176;         // Conductivity -> mS/cm
+// double sigma = 0.1;         // Conductivity (isotropic) -> mS/cm (Sachetto)
 // double beta = 0.14;            // Surface area-to-volume ratio -> um^-1
 // double Cm = 0.185;             // Cell capacitance per unit surface area -> uF/ (???)^2 (um???) (ten Tusscher) (Sachetto)
 // double sigma = 0.00001;        // Conductivity (isotropic) -> mS/um
@@ -567,15 +569,12 @@ double Ca_ssbufss(double Ca_SS) // !!!
 /*----------------------------------------
 Simulation parameters
 -----------------------------------------*/
-double dt_ode = 0.05;           // Time step -> ms
-double dt_pde = 0.03;           // Time step -> ms
+double dt_ode = 0.02;           // Time step -> ms
+double dt_pde = 0.02;           // Time step -> ms
 double simulation_time = 1000;   // End time -> ms
 double dx = 0.01;               // Spatial step -> cm
 double dy = 0.01;               // Spatial step -> cm
 int L = 2;                      // Length of the domain (square tissue) -> cm
-// double dx = 100;                // Spatial step -> um
-// double dy = 100;                // Spatial step -> um
-// int L = 20000;                  // Length of the domain (square tissue) -> um
 
 /*----------------------------------------
 Stimulation parameters
@@ -584,17 +583,12 @@ double stim_strength = -38;         // Stimulation strength -> uA/cm^2 (???)
 double t_s1_begin = 0.0;            // Stimulation start time -> ms
 double stim_duration = 2.0;         // Stimulation duration -> ms
 double stim2_duration = 2.0;        // Stimulation duration -> ms
-double t_s2_begin = 330;            // Stimulation start time -> ms
+double t_s2_begin = 310;            // Stimulation start time -> ms
 double s1_x_limit = 0.04;           // Stimulation x limit -> cm
 double s2_x_max = 1.0;              // Stimulation x max -> cm
 double s2_y_max = 1.0;              // Stimulation y limit -> cm
 double s2_x_min = 0.0;              // Stimulation x min -> cm
 double s2_y_min = 0.0;              // Stimulation y min -> cm
-// double s1_x_limit = 400;            // Stimulation x limit -> um
-// double s2_x_max = 10000;            // Stimulation x max -> um
-// double s2_y_max = 10000;            // Stimulation y limit -> um
-// double s2_x_min = 0.0;              // Stimulation x min -> um
-// double s2_y_min = 0.0;              // Stimulation y min -> um
 
 /*----------------------------------------
 Main function
@@ -667,8 +661,10 @@ int main(int argc, char *argv[])
         solution[i] = (double *)malloc(N * sizeof(double));
     }
     double I_total = 0.0;
-    double D = sigma / (1.0 * beta);
-    double zeta = (D * dt_pde) / (dx * dx); // For implicit
+    double D_long = sigma_long / (1.0 * beta);
+    double D_trans = sigma_trans / (1.0 * beta);
+    double zeta_long = (D_long * dt_pde) / (dx * dx); // For implicit
+    double zeta_trans = (D_trans * dt_pde) / (dy * dy); // For implicit
 
     // Initialize variables
     initialize_variables(N, V, V_temp, X_r1, X_r2, X_s, m, h, j, d, f, f2, fCass, s, r, Ca_i, Ca_SR, Ca_SS, R_prime, Na_i, K_i);
@@ -705,6 +701,8 @@ int main(int argc, char *argv[])
     int count = 0;
     FILE *fp_times = NULL;
     fp_times = fopen("sim-times-exp-0.05.txt", "w");
+    FILE *fp_last = NULL;
+    fp_last = fopen("last-adi-0.02.txt", "w");
 
     // Start timer
     double start, finish, elapsed;
@@ -804,12 +802,12 @@ int main(int argc, char *argv[])
             // PDEs - Diffusion
             #pragma omp parallel for collapse(2) num_threads(num_threads) default(none) \
             private(i, k) \
-            shared(V, V_temp, N, dx, dy, dt_ode, D)
+            shared(V, V_temp, N, dx, dy, dt_ode, D_trans, D_long)
             for (i = 1; i < N - 1; i++)
             {
                 for (k = 1; k < N - 1; k++)
                 {
-                    V[i][k] = V_temp[i][k] + (dt_ode * D) * (((V_temp[i - 1][k] - 2.0 * V_temp[i][k] + V_temp[i + 1][k]) / (dx * dx)) + ((V_temp[i][k - 1] - 2.0 * V_temp[i][k] + V_temp[i][k + 1]) / (dy * dy)));
+                    V[i][k] = V_temp[i][k] + ((dt_ode * D_trans) * ((V_temp[i - 1][k] - 2.0 * V_temp[i][k] + V_temp[i + 1][k]) / (dx * dx))) + ((dt_ode * D_long) * ((V_temp[i][k - 1] - 2.0 * V_temp[i][k] + V_temp[i][k + 1]) / (dy * dy)));
                 }
             }
 
@@ -832,7 +830,7 @@ int main(int argc, char *argv[])
             }
 
             // Write to file
-            if (step % 100 == 0)
+            if (step % 200 == 0)
             {
                 for (int i = 0; i < N; i++)
                 {
@@ -932,11 +930,11 @@ int main(int argc, char *argv[])
             // 1st: Diffusion y-axis
             #pragma omp parallel for num_threads(num_threads) default(none) \
             private(i, k) \
-            shared(N, V_temp, solution, right, zeta)
+            shared(N, V_temp, solution, right, zeta_trans)
             for (i = 1; i < N - 1; i++)
             {
                 // Linear system - tridiagonal matrix
-                thomas_algorithm_2(right[i], solution[i], N - 2, zeta);
+                thomas_algorithm_2(right[i], solution[i], N - 2, zeta_trans);
 
                 // Pass solution
                 for (k = 1; k < N - 1; k++)
@@ -948,11 +946,11 @@ int main(int argc, char *argv[])
             // 2nd: Diffusion x-axis
             #pragma omp parallel for num_threads(num_threads) default(none) \
             private(i) \
-            shared(N, V_temp, V, zeta)
+            shared(N, V_temp, V, zeta_long)
             for (i = 1; i < N - 1; i++)
             {
                 // Linear system - tridiagonal matrix
-                thomas_algorithm_2(V_temp[i], V[i], N - 2, zeta);
+                thomas_algorithm_2(V_temp[i], V[i], N - 2, zeta_long);
             }
 
             // Boundary Conditions
@@ -1003,10 +1001,19 @@ int main(int argc, char *argv[])
     // fprintf(fp, "%c %.2f - %d threads - time: %.4f\n\n", method, delta_t, num_threads, elapsed);
     // fprintf(fp, "ODE: %.4f and PDE: %.4f\n\n", elapsed_ode, elapsed_pde);
     printf("\nElapsed time = %e seconds\n%d time steps recorded\n", elapsed, count);
+    // printf("\nElapsed time = %e seconds", elapsed);
+    for (int i = 0; i < N; i++)
+    {
+        for (int k = 0; k < N; k++)
+        {
+            fprintf(fp_last, "%lf\n", V[i][k]);
+        }
+    }
 
     // Close files
     fclose(fp_all);
     fclose(fp_times);
+    fclose(fp_last);
 
     free(V);
     free(V_temp);

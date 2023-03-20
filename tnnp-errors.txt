@@ -1,0 +1,32 @@
+Error (EXP with dt = 0.02 and ADI with dt = 0.02):
+Euclidean distance = 10263.011678
+RMSE = 51.315058
+Mean absolute error = 37.248918
+ED / Norm_ref = 1.399993
+Relative % = 139.999295
+
+
+Error (EXP with dt = 0.02 and EXP dt = 0.03):
+Euclidean distance = 8780.750000
+RMSE = 43.903750
+Mean absolute error = 28.687310
+ED / Norm_ref = 1.197795
+Relative % = 119.779539
+
+
+Error (EXP with dt = 0.02 and EXP dt = 0.04):
+Euclidean distance = 9355.795622
+RMSE = 46.778978
+Mean absolute error = 32.344706
+ED / Norm_ref = 1.276238
+Relative % = 127.623824
+
+
+Error (EXP with dt = 0.02 and EXP dt = 0.05):
+Euclidean distance = 9715.562302
+RMSE = 48.577812
+Mean absolute error = 34.201236
+ED / Norm_ref = 1.325315
+Relative % = 132.531455
+
+

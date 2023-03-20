@@ -28,9 +28,9 @@ int main()
 
 
     // Compare EXP with dt = 0.02 and ADI with dt = 0.02
-    fp_1 = fopen("tnnp-exp-0.02.txt", "r");
+    fp_1 = fopen("last-exp-0.02.txt", "r");
     FILE *fp_adi;
-    fp_adi = fopen("tnnp-adi-0.02.txt", "r");
+    fp_adi = fopen("last-adi-0.02.txt", "r");
     fprintf(fp, "Error (EXP with dt = 0.02 and ADI with dt = 0.02):\n");
     double sum = 0;
     double sum_norm_01 = 0;
@@ -55,10 +55,60 @@ int main()
     fclose(fp_1);
 
 
+    // Compare EXP with dt = 0.02 and EXP dt = 0.03
+    fp_1 = fopen("last-exp-0.02.txt", "r");
+    FILE *fp_exp_03;
+    fp_exp_03 = fopen("last-exp-0.03.txt", "r");
+    fprintf(fp, "Error (EXP with dt = 0.02 and EXP dt = 0.03):\n");
+    sum = 0;
+    sum_abs = 0;
+    for(int i = 0; i < N*N; i ++)
+    {
+        char line_1[10];
+        char line_exp_03[10];
+        fgets(line_1, 10, fp_1);
+        fgets(line_exp_03, 10, fp_exp_03);
+        double num_1 = strtod(line_1, &ptr);
+        double num_exp_03 = strtod(line_exp_03, &ptr);
+
+        double p = pow(num_exp_03 - num_1, 2); 
+        sum += p;
+        sum_abs += fabs(num_exp_03 - num_1);
+    }
+    print_errors(fp, sum, sum_abs, norm_01);
+    fclose(fp_exp_03);
+    fclose(fp_1);
+
+
+    // Compare EXP with dt = 0.02 and EXP dt = 0.04
+    fp_1 = fopen("last-exp-0.02.txt", "r");
+    FILE *fp_exp_04;
+    fp_exp_04 = fopen("last-exp-0.04.txt", "r");
+    fprintf(fp, "Error (EXP with dt = 0.02 and EXP dt = 0.04):\n");
+    sum = 0;
+    sum_abs = 0;
+    for(int i = 0; i < N*N; i ++)
+    {
+        char line_1[10];
+        char line_exp_04[10];
+        fgets(line_1, 10, fp_1);
+        fgets(line_exp_04, 10, fp_exp_04);
+        double num_1 = strtod(line_1, &ptr);
+        double num_exp_04 = strtod(line_exp_04, &ptr);
+
+        double p = pow(num_exp_04 - num_1, 2); 
+        sum += p;
+        sum_abs += fabs(num_exp_04 - num_1);
+    }
+    print_errors(fp, sum, sum_abs, norm_01);
+    fclose(fp_exp_04);
+    fclose(fp_1);
+
+    
     // Compare EXP with dt = 0.02 and EXP dt = 0.05
-    fp_1 = fopen("tnnp-exp-0.02.txt", "r");
+    fp_1 = fopen("last-exp-0.02.txt", "r");
     FILE *fp_exp_05;
-    fp_exp_05 = fopen("tnnp-exp-0.05.txt", "r");
+    fp_exp_05 = fopen("last-exp-0.05.txt", "r");
     fprintf(fp, "Error (EXP with dt = 0.02 and EXP dt = 0.05):\n");
     sum = 0;
     sum_abs = 0;
@@ -78,183 +128,6 @@ int main()
     print_errors(fp, sum, sum_abs, norm_01);
     fclose(fp_exp_05);
     fclose(fp_1);
-
-
-    // Compare EXP with dt = 0.02 and EXP dt = 0.1
-    fp_1 = fopen("tnnp-exp-0.02.txt", "r");
-    FILE *fp_exp_1;
-    fp_exp_1 = fopen("tnnp-exp-0.1.txt", "r");
-    fprintf(fp, "Error (EXP with dt = 0.02 and EXP dt = 0.1):\n");
-    sum = 0;
-    sum_abs = 0;
-    for(int i = 0; i < N*N; i ++)
-    {
-        char line_1[10];
-        char line_exp_1[10];
-        fgets(line_1, 10, fp_1);
-        fgets(line_exp_1, 10, fp_exp_1);
-        double num_1 = strtod(line_1, &ptr);
-        double num_exp_1 = strtod(line_exp_1, &ptr);
-
-        double p = pow(num_exp_1 - num_1, 2); 
-        sum += p;
-        sum_abs += fabs(num_exp_1 - num_1);
-    }
-    print_errors(fp, sum, sum_abs, norm_01);
-    fclose(fp_exp_1);
-    fclose(fp_1);
-
-
-    // Compare EXP with dt = 0.02 and ADI dt = 0.03
-    fp_1 = fopen("tnnp-exp-0.02.txt", "r");
-    FILE *fp_3;
-    fp_3 = fopen("tnnp-adi-0.03.txt", "r");
-    fprintf(fp, "Error (EXP with dt = 0.02 and ADI dt = 0.03):\n");
-    sum = 0;
-    sum_abs = 0;
-    for(int i = 0; i < N*N; i ++)
-    {
-        char line_1[10];
-        char line_3[10];
-        fgets(line_1, 10, fp_1);
-        fgets(line_3, 10, fp_3);
-        double num_1 = strtod(line_1, &ptr);
-        double num_3 = strtod(line_3, &ptr);
-
-        double p = pow(num_3 - num_1, 2); 
-        sum += p;
-        sum_abs += fabs(num_3 - num_1);
-    }
-    print_errors(fp, sum, sum_abs, norm_01);
-    fclose(fp_3);
-    fclose(fp_1);
-    
-
-    // Compare EXP with dt = 0.02 and ADI dt = 0.04
-    fp_1 = fopen("tnnp-exp-0.02.txt", "r");
-    FILE *fp_4;
-    fp_4 = fopen("tnnp-adi-0.04.txt", "r");
-    fprintf(fp, "Error (EXP with dt = 0.02 and ADI dt = 0.04):\n");
-    sum = 0;
-    sum_abs = 0;
-    for(int i = 0; i < N*N; i ++)
-    {
-        char line_1[10];
-        char line_4[10];
-        fgets(line_1, 10, fp_1);
-        fgets(line_4, 10, fp_4);
-        double num_1 = strtod(line_1, &ptr);
-        double num_4 = strtod(line_4, &ptr);
-
-        double p = pow(num_4 - num_1, 2); 
-        sum += p;
-        sum_abs += fabs(num_4 - num_1);
-    }
-    print_errors(fp, sum, sum_abs, norm_01);
-    fclose(fp_4);
-    fclose(fp_1);
-
-
-    // Compare EXP with dt = 0.02 and ADI dt = 0.05
-    fp_1 = fopen("tnnp-exp-0.02.txt", "r");
-    FILE *fp_5;
-    fp_5 = fopen("tnnp-adi-0.05.txt", "r");
-    fprintf(fp, "Error (EXP with dt = 0.02 and ADI dt = 0.05):\n");
-    sum = 0;
-    sum_abs = 0;
-    for(int i = 0; i < N*N; i ++)
-    {
-        char line_1[10];
-        char line_5[10];
-        fgets(line_1, 10, fp_1);
-        fgets(line_5, 10, fp_5);
-        double num_1 = strtod(line_1, &ptr);
-        double num_5 = strtod(line_5, &ptr);
-
-        double p = pow(num_5 - num_1, 2); 
-        sum += p;
-        sum_abs += fabs(num_5 - num_1);
-    }
-    print_errors(fp, sum, sum_abs, norm_01);
-    fclose(fp_5);
-    fclose(fp_1);
-
-
-    // Compare EXP with dt = 0.02 and ADI dt = 0.1
-    fp_1 = fopen("tnnp-exp-0.02.txt", "r");
-    FILE *fp_10;
-    fp_10 = fopen("tnnp-adi-0.1.txt", "r");
-    fprintf(fp, "Error (EXP with dt = 0.02 and ADI dt = 0.1):\n");
-    sum = 0;
-    sum_abs = 0;
-    for(int i = 0; i < N*N; i ++)
-    {
-        char line_1[10];
-        char line_10[10];
-        fgets(line_1, 10, fp_1);
-        fgets(line_10, 10, fp_10);
-        double num_1 = strtod(line_1, &ptr);
-        double num_10 = strtod(line_10, &ptr);
-
-        double p = pow(num_10 - num_1, 2); 
-        sum += p;
-        sum_abs += fabs(num_10 - num_1);
-    }
-    print_errors(fp, sum, sum_abs, norm_01);
-    fclose(fp_10);
-    fclose(fp_1);
-
-
-    // Compare EXP with dt = 0.02 and ADI dt = 0.2
-    fp_1 = fopen("tnnp-exp-0.02.txt", "r");
-    FILE *fp_20;
-    fp_20 = fopen("tnnp-adi-0.2.txt", "r");
-    fprintf(fp, "Error (EXP with dt = 0.02 and ADI dt = 0.2):\n");
-    sum = 0;
-    sum_abs = 0;
-    for(int i = 0; i < N*N; i ++)
-    {
-        char line_1[10];
-        char line_20[10];
-        fgets(line_1, 10, fp_1);
-        fgets(line_20, 10, fp_20);
-        double num_1 = strtod(line_1, &ptr);
-        double num_20 = strtod(line_20, &ptr);
-
-        double p = pow(num_20 - num_1, 2); 
-        sum += p;
-        sum_abs += fabs(num_20 - num_1);
-    }
-    print_errors(fp, sum, sum_abs, norm_01);
-    fclose(fp_20);
-    fclose(fp_1);
-
-
-    // Compare EXP with dt = 0.02 and EXP dt = 0.005
-    fp_1 = fopen("tnnp-exp-0.02.txt", "r");
-    FILE *fp_05;
-    fp_05 = fopen("tnnp-exp-0.005.txt", "r");
-    fprintf(fp, "Error (EXP with dt = 0.02 and EXP dt = 0.005):\n");
-    sum = 0;
-    sum_abs = 0;
-    for(int i = 0; i < N*N; i ++)
-    {
-        char line_1[10];
-        char line_05[10];
-        fgets(line_1, 10, fp_1);
-        fgets(line_05, 10, fp_05);
-        double num_1 = strtod(line_1, &ptr);
-        double num_05 = strtod(line_05, &ptr);
-
-        double p = pow(num_05 - num_1, 2); 
-        sum += p;
-        sum_abs += fabs(num_05 - num_1);
-    }
-    print_errors(fp, sum, sum_abs, norm_01);
-    fclose(fp_05);
-    fclose(fp_1);
-
-
 
 
     fclose(fp);
