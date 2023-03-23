@@ -569,9 +569,8 @@ double Ca_ssbufss(double Ca_SS) // !!!
 /*----------------------------------------
 Simulation parameters
 -----------------------------------------*/
-double dt_ode = 0.02;           // Time step -> ms
-double dt_pde = 0.02;           // Time step -> ms
-double simulation_time = 1000;   // End time -> ms
+
+double simulation_time = 30;   // End time -> ms
 double dx = 0.01;               // Spatial step -> cm
 double dy = 0.01;               // Spatial step -> cm
 int L = 2;                      // Length of the domain (square tissue) -> cm
@@ -583,7 +582,7 @@ double stim_strength = -38;         // Stimulation strength -> uA/cm^2 (???)
 double t_s1_begin = 0.0;            // Stimulation start time -> ms
 double stim_duration = 2.0;         // Stimulation duration -> ms
 double stim2_duration = 2.0;        // Stimulation duration -> ms
-double t_s2_begin = 310;            // Stimulation start time -> ms
+double t_s2_begin = 300;            // Stimulation start time -> ms
 double s1_x_limit = 0.04;           // Stimulation x limit -> cm
 double s2_x_max = 1.0;              // Stimulation x max -> cm
 double s2_y_max = 1.0;              // Stimulation y limit -> cm
@@ -596,12 +595,20 @@ Main function
 int main(int argc, char *argv[])
 {
     int num_threads;
-    if (argc != 2)
+    double mt;
+    double dt_ode;           // Time step -> ms
+    double dt_pde;           // Time step -> ms
+    if (argc != 5)
     {
-        fprintf(stderr, "Usage: %s <number of threads>\n", argv[0]);
+        fprintf(stderr, "Usage: %s <number of threads>  <dt_ode>  <dt_pde>  <method>\n", argv[0]);
         exit(1);
     }
     num_threads = atoi(argv[1]);
+    dt_ode = atof(argv[2]);
+    dt_pde = atof(argv[3]);
+    mt = atof(argv[4]);
+    
+
     if (num_threads <= 0)
     {
         fprintf(stderr, "Number of threads must greater than 0\n");
@@ -682,9 +689,9 @@ int main(int argc, char *argv[])
     double dR_prime_dt, dCa_SR_dt, dCa_SS_dt, dCa_i_dt, dNa_i_dt, dK_i_dt;
 
     // Ask for input
-    char method;
-    printf("Which method (e - explicit | a - ADI): ");
-    scanf("%c", &method);
+    // char method = 'e';
+    /* printf("Which method (e - explicit | a - ADI): ");
+    scanf("%c", &method); */
     /* if (dt_pde == dt_ode)
     {
         printf("Which method (e - explicit | a - ADI): ");
@@ -696,28 +703,63 @@ int main(int argc, char *argv[])
     } */
 
     // Open the file to write for complete gif
+    char sss[10];
+    sprintf(sss, "%.03f", dt_ode);
+    char str[10];
+    sprintf(str, "%.03f", dt_pde);
+    char method[10];
+    sprintf(method, "%.01f", mt);
+
+    /* char filename[100] = "tnnp-";
+    strcat(filename, method);
+    strcat(filename, "-");
+    strcat(filename, sss);
+    strcat(filename, "-");
+    strcat(filename, str);
+    strcat(filename, "-final.txt");
     FILE *fp_all = NULL;
-    fp_all = fopen("tnnp-exp-0.05.txt", "w");
+    fp_all = fopen(filename, "w");
     int count = 0;
+    char filename2[100] = "sim-times-";
+    strcat(filename2, method);
+    strcat(filename2, "-");
+    strcat(filename2, sss);
+    strcat(filename2, "-");
+    strcat(filename2, str);
+    strcat(filename2, "-final.txt");
     FILE *fp_times = NULL;
-    fp_times = fopen("sim-times-exp-0.05.txt", "w");
+    fp_times = fopen(filename2, "w"); */
+
+    char filename3[100] = "last-";
+    strcat(filename3, method);
+    strcat(filename3, "-");
+    strcat(filename3, sss);
+    strcat(filename3, "-");
+    strcat(filename3, str);
+    strcat(filename3, "-final.txt");
     FILE *fp_last = NULL;
-    fp_last = fopen("last-adi-0.02.txt", "w");
+    fp_last = fopen(filename3, "w");
+
+    bool tag = true;
 
     // Start timer
     double start, finish, elapsed;
-    // double elapsed_ode = 0, elapsed_pde = 0;
+    double elapsed_ode = 0, elapsed_pde = 0;
+    double start_ode, finish_ode, start_pde, finish_pde;
 
     start = omp_get_wtime();
-    bool tag = true;
 
     // Forward Euler
-    if (method == 'e' || method == 'E')
+    if (mt == 1)
     {
+
         // Forward Euler
         for (step = 0; time < simulation_time; step++)
         {
             time += dt_ode;
+
+            // Check ODEs time
+            start_ode = omp_get_wtime();
 
             // ODEs - Reaction
             #pragma omp parallel for collapse(2) num_threads(num_threads) default(none) \
@@ -781,6 +823,10 @@ int main(int argc, char *argv[])
                 }
             }
 
+            // Check ODE time
+            finish_ode = omp_get_wtime();
+            elapsed_ode += finish_ode - start_ode;
+
             // Boundary Conditions
             #pragma omp parallel for num_threads(num_threads) default(none) \
             private(i) \
@@ -799,6 +845,9 @@ int main(int argc, char *argv[])
                 V_temp[N - 1][k] = V_temp[N - 2][k];
             }
 
+            // Check PDE time
+            start_pde = omp_get_wtime();
+
             // PDEs - Diffusion
             #pragma omp parallel for collapse(2) num_threads(num_threads) default(none) \
             private(i, k) \
@@ -810,6 +859,10 @@ int main(int argc, char *argv[])
                     V[i][k] = V_temp[i][k] + ((dt_ode * D_trans) * ((V_temp[i - 1][k] - 2.0 * V_temp[i][k] + V_temp[i + 1][k]) / (dx * dx))) + ((dt_ode * D_long) * ((V_temp[i][k - 1] - 2.0 * V_temp[i][k] + V_temp[i][k + 1]) / (dy * dy)));
                 }
             }
+
+            // Check PDE time
+            finish_pde = omp_get_wtime();
+            elapsed_pde += finish_pde - start_pde;
 
             // Boundary Conditions
             #pragma omp parallel for num_threads(num_threads) default(none) \
@@ -830,7 +883,7 @@ int main(int argc, char *argv[])
             }
 
             // Write to file
-            if (step % 200 == 0)
+            /* if (step % 200 == 0)
             {
                 for (int i = 0; i < N; i++)
                 {
@@ -841,14 +894,14 @@ int main(int argc, char *argv[])
                 }
                 fprintf(fp_times, "%lf\n", time);
                 count++;
-            }
+            } */
 
             // Check S1 velocity
-            if (V[100][N-1] > 20 && tag)
+            /* if (V[100][N-1] > 20 && tag)
             {
                 printf("S1 velocity: %lf\n", ((20 - x_lim) / (time)));
                 tag = false;
-            }
+            } */
         }
     }
 
@@ -859,6 +912,9 @@ int main(int argc, char *argv[])
         for (step = 0; time < simulation_time; step++)
         {
             time += dt_pde;
+
+            // Check ODE time
+            start_ode = omp_get_wtime();
 
             // ODEs - Reaction
             #pragma omp parallel for collapse(2) num_threads(num_threads) default(none) \
@@ -891,8 +947,8 @@ int main(int argc, char *argv[])
                         I_total = I_stim + I_Na(V[i][k], m[i][k], h[i][k], j[i][k], Na_i[i][k]) + I_bNa(V[i][k], Na_i[i][k]) + I_K1(V[i][k], K_i[i][k]) + I_to(V[i][k], r[i][k], s[i][k], K_i[i][k]) + I_Kr(V[i][k], X_r1[i][k], X_r2[i][k], K_i[i][k]) + I_Ks(V[i][k], X_s[i][k], K_i[i][k], Na_i[i][k]) + I_CaL(V[i][k], d[i][k], f[i][k], f2[i][k], fCass[i][k], Ca_SS[i][k]) + I_NaK(V[i][k], Na_i[i][k]) + I_NaCa(V[i][k], Na_i[i][k], Ca_i[i][k]) + I_pCa(V[i][k], Ca_i[i][k]) + I_pK(V[i][k], K_i[i][k]) + I_bCa(V[i][k], Ca_i[i][k]);
 
                         // Update voltage
-                        V_temp[i][k] = V[i][k] + (-I_total) * dt_ode;
-                        right[k][i] = V_temp[i][k];
+                        V[i][k] = V[i][k] + (-I_total) * dt_ode;
+                        right[k][i] = V[i][k];
 
                         // Update concentrations
                         dR_prime_dt = ((-k2(Ca_SS[i][k])) * Ca_SS[i][k] * R_prime[i][k]) + (k4 * (1.0 - R_prime[i][k]));
@@ -926,6 +982,13 @@ int main(int argc, char *argv[])
                 }
             }
 
+            // Check ODE time
+            finish_ode = omp_get_wtime();
+            elapsed_ode += finish_ode - start_ode;
+
+            // Check PDE time
+            start_pde = omp_get_wtime();
+
             // PDEs - Diffusion
             // 1st: Diffusion y-axis
             #pragma omp parallel for num_threads(num_threads) default(none) \
@@ -953,6 +1016,10 @@ int main(int argc, char *argv[])
                 thomas_algorithm_2(V_temp[i], V[i], N - 2, zeta_long);
             }
 
+            // Check PDE time
+            finish_pde = omp_get_wtime();
+            elapsed_pde += finish_pde - start_pde;
+
             // Boundary Conditions
             #pragma omp parallel for num_threads(num_threads) default(none) \
             private(i) \
@@ -972,7 +1039,7 @@ int main(int argc, char *argv[])
             }
 
             // Write to file
-            if (step % 200 == 0)
+            /* if (step % 200 == 0)
             {
                 for (int i = 0; i < N; i++)
                 {
@@ -990,7 +1057,7 @@ int main(int argc, char *argv[])
             {
                 printf("S1 velocity: %lf\n", ((20 - x_lim) / (time)));
                 tag = false;
-            }
+            } */
         }
     }
 
@@ -998,10 +1065,11 @@ int main(int argc, char *argv[])
     finish = omp_get_wtime();
     elapsed = finish - start;
 
-    // fprintf(fp, "%c %.2f - %d threads - time: %.4f\n\n", method, delta_t, num_threads, elapsed);
+    FILE* fp = fopen("time-results.txt", "a");
+    fprintf(fp, "%.1f | dt_ode = %.2f | dt_pde = %.2f | %d threads | ODE: %.4f | PDE: %.4f -> total time: %.4f\n", mt, dt_ode, dt_pde, num_threads, elapsed_ode, elapsed_pde, elapsed);
     // fprintf(fp, "ODE: %.4f and PDE: %.4f\n\n", elapsed_ode, elapsed_pde);
-    printf("\nElapsed time = %e seconds\n%d time steps recorded\n", elapsed, count);
-    // printf("\nElapsed time = %e seconds", elapsed);
+    // printf("\nElapsed time = %e seconds\n%d time steps recorded\n", elapsed, count);
+    printf("\nElapsed time = %e seconds\n", elapsed);
     for (int i = 0; i < N; i++)
     {
         for (int k = 0; k < N; k++)
@@ -1011,9 +1079,10 @@ int main(int argc, char *argv[])
     }
 
     // Close files
-    fclose(fp_all);
-    fclose(fp_times);
+    // fclose(fp_all);
+    // fclose(fp_times);
     fclose(fp_last);
+    fclose(fp);
 
     free(V);
     free(V_temp);

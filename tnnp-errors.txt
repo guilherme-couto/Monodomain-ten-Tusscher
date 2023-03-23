@@ -1,32 +1,68 @@
-Error (EXP with dt = 0.02 and ADI with dt = 0.02):
-Euclidean distance = 10263.011678
-RMSE = 51.315058
-Mean absolute error = 37.248918
-ED / Norm_ref = 1.399993
-Relative % = 139.999295
-
-
-Error (EXP with dt = 0.02 and EXP dt = 0.03):
-Euclidean distance = 8780.750000
-RMSE = 43.903750
-Mean absolute error = 28.687310
-ED / Norm_ref = 1.197795
-Relative % = 119.779539
+Error (EXP with dt = 0.02 and EXP with dt_edo = dt_pde = 0.02):
+Euclidean distance = 0.000000
+RMSE = 0.000000
+Mean absolute error = 0.000000
+ED / Norm_ref = 0.000000
+Relative % = 0.000000
 
 
 Error (EXP with dt = 0.02 and EXP dt = 0.04):
-Euclidean distance = 9355.795622
-RMSE = 46.778978
-Mean absolute error = 32.344706
-ED / Norm_ref = 1.276238
-Relative % = 127.623824
+Euclidean distance = 373.533650
+RMSE = 1.867668
+Mean absolute error = 0.350990
+ED / Norm_ref = 0.061263
+Relative % = 6.126349
 
 
-Error (EXP with dt = 0.02 and EXP dt = 0.05):
-Euclidean distance = 9715.562302
-RMSE = 48.577812
-Mean absolute error = 34.201236
-ED / Norm_ref = 1.325315
-Relative % = 132.531455
+Error (EXP with dt = 0.02 and EXP dt = 0.06):
+Euclidean distance = -nan
+RMSE = -nan
+Mean absolute error = nan
+ED / Norm_ref = -nan
+Relative % = -nan
+
+
+Error (EXP with dt = 0.02 and EXP dt = 0.08):
+Euclidean distance = nan
+RMSE = nan
+Mean absolute error = nan
+ED / Norm_ref = nan
+Relative % = nan
+
+
+
+
+============================================================================
+
+Error (ADI with dt_edo = dt_pde = 0.02 and ADI with dt_edo = dt_pde = 0.02):
+Euclidean distance = 0.000000
+RMSE = 0.000000
+Mean absolute error = 0.000000
+ED / Norm_ref = 0.000000
+Relative % = 0.000000
+
+
+Error (ADI with dt_edo = dt_pde = 0.02 and ADI dt_edo = dt_pde = 0.04):
+Euclidean distance = 1431.039908
+RMSE = 7.155200
+Mean absolute error = 2.745417
+ED / Norm_ref = 0.245162
+Relative % = 24.516242
+
+
+Error (ADI with dt_edo = dt_pde = 0.02 and ADI dt_edo = dt_pde = 0.06):
+Euclidean distance = 2829.294822
+RMSE = 14.146474
+Mean absolute error = 7.305672
+ED / Norm_ref = 0.484708
+Relative % = 48.470819
+
+
+Error (ADI with dt_edo = dt_pde = 0.02 and ADI dt_edo = dt_pde = 0.08):
+Euclidean distance = 16350.096004
+RMSE = 81.750480
+Mean absolute error = 76.617533
+ED / Norm_ref = 2.801060
+Relative % = 280.106029
 
 
