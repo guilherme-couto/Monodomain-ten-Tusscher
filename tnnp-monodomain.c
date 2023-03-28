@@ -116,79 +116,6 @@ double Na_i_init = 8.604;     // Initial intracellular Na+ concentration -> mM
 double K_i_init = 136.89;     // Initial intracellular K+ concentration -> mM
 
 /*----------------------------------------
-Auxiliary functions
------------------------------------------*/
-// Initialize variables
-void initialize_variables(int N, double **V, double **V_temp, double **X_r1, double **X_r2, double **X_s, double **m, double **h, double **j, double **d, double **f, double **f2, double **fCass, double **s, double **r, double **Ca_i, double **Ca_SR, double **Ca_SS, double **R_prime, double **Na_i, double **K_i)
-{
-    for (int i = 0; i < N; i++)
-    {
-        for (int k = 0; k < N; k++)
-        {
-            V[i][k] = V_init;
-            V_temp[i][k] = V_init;
-            X_r1[i][k] = X_r1_init;
-            X_r2[i][k] = X_r2_init;
-            X_s[i][k] = X_s_init;
-            m[i][k] = m_init;
-            h[i][k] = h_init;
-            j[i][k] = j_init;
-            d[i][k] = d_init;
-            f[i][k] = f_init;
-            f2[i][k] = f2_init;
-            fCass[i][k] = fCass_init;
-            s[i][k] = s_init;
-            r[i][k] = r_init;
-            Ca_i[i][k] = Ca_i_init;
-            Ca_SR[i][k] = Ca_SR_init;
-            Ca_SS[i][k] = Ca_SS_init;
-            R_prime[i][k] = R_prime_init;
-            Na_i[i][k] = Na_i_init;
-            K_i[i][k] = K_i_init;
-        }
-    }
-}
-
-void thomas_algorithm(double *d, double *solution, unsigned long N, double alpha)
-{
-    // Auxiliary arrays
-    double *c_ = (double *)malloc((N - 1) * sizeof(double));
-    double *d_ = (double *)malloc((N) * sizeof(double));
-
-    // Coefficients
-    double a = -alpha;    // subdiagonal
-    double b = 1 + alpha; // diagonal (1st and last row)
-    double c = -alpha;    // superdiagonal
-
-    // 1st: update auxiliary arrays
-    c_[0] = c / b;
-    d_[0] = d[1] / b;
-
-    b = 1 + 2 * alpha;
-
-    for (int i = 1; i <= N - 2; i++)
-    {
-        c_[i] = c / (b - a * c_[i - 1]);
-        d_[i] = (d[i + 1] - a * d_[i - 1]) / (b - a * c_[i - 1]);
-    }
-
-    b = 1 + alpha;
-    d_[N - 1] = (d[N] - a * d_[N - 2]) / (b - a * c_[N - 2]);
-
-    // 2nd: update solution
-    solution[N] = d_[N - 1];
-
-    for (int i = N - 2; i >= 0; i--)
-    {
-        solution[i + 1] = d_[i] - c_[i] * solution[i + 2];
-    }
-
-    // Free memory
-    free(c_);
-    free(d_);
-}
-
-/*----------------------------------------
 Currents functions
 ------------------------------------------*/
 // Reversal potentials for Na+, K+ and Ca++
@@ -589,6 +516,96 @@ double s2_y_max = 1.0;              // Stimulation y limit -> cm
 double s2_x_min = 0.0;              // Stimulation x min -> cm
 double s2_y_min = 0.0;              // Stimulation y min -> cm
 
+
+/*----------------------------------------
+Auxiliary functions
+-----------------------------------------*/
+// Initialize variables
+void initialize_variables(int N, double **V, double **V_temp, double **X_r1, double **X_r2, double **X_s, double **m, double **h, double **j, double **d, double **f, double **f2, double **fCass, double **s, double **r, double **Ca_i, double **Ca_SR, double **Ca_SS, double **R_prime, double **Na_i, double **K_i)
+{
+    for (int i = 0; i < N; i++)
+    {
+        for (int k = 0; k < N; k++)
+        {
+            V[i][k] = V_init;
+            V_temp[i][k] = V_init;
+            X_r1[i][k] = X_r1_init;
+            X_r2[i][k] = X_r2_init;
+            X_s[i][k] = X_s_init;
+            m[i][k] = m_init;
+            h[i][k] = h_init;
+            j[i][k] = j_init;
+            d[i][k] = d_init;
+            f[i][k] = f_init;
+            f2[i][k] = f2_init;
+            fCass[i][k] = fCass_init;
+            s[i][k] = s_init;
+            r[i][k] = r_init;
+            Ca_i[i][k] = Ca_i_init;
+            Ca_SR[i][k] = Ca_SR_init;
+            Ca_SS[i][k] = Ca_SS_init;
+            R_prime[i][k] = R_prime_init;
+            Na_i[i][k] = Na_i_init;
+            K_i[i][k] = K_i_init;
+        }
+    }
+}
+
+void thomas_algorithm(double *d, double *solution, unsigned long N, double alpha)
+{
+    // Auxiliary arrays
+    double *c_ = (double *)malloc((N - 1) * sizeof(double));
+    double *d_ = (double *)malloc((N) * sizeof(double));
+
+    // Coefficients
+    double a = -alpha;    // subdiagonal
+    double b = 1 + alpha; // diagonal (1st and last row)
+    double c = -alpha;    // superdiagonal
+
+    // 1st: update auxiliary arrays
+    c_[0] = c / b;
+    d_[0] = d[1] / b;
+
+    b = 1 + 2 * alpha;
+
+    for (int i = 1; i <= N - 2; i++)
+    {
+        c_[i] = c / (b - a * c_[i - 1]);
+        d_[i] = (d[i + 1] - a * d_[i - 1]) / (b - a * c_[i - 1]);
+    }
+
+    b = 1 + alpha;
+    d_[N - 1] = (d[N] - a * d_[N - 2]) / (b - a * c_[N - 2]);
+
+    // 2nd: update solution
+    solution[N] = d_[N - 1];
+
+    for (int i = N - 2; i >= 0; i--)
+    {
+        solution[i + 1] = d_[i] - c_[i] * solution[i + 2];
+    }
+
+    // Free memory
+    free(c_);
+    free(d_);
+}
+
+bool time_to_stimulate(double time)
+{
+    if (time >= t_s1_begin && time <= t_s1_begin + stim_duration)
+    {
+        return true;
+    }
+    else if (time >= t_s2_begin && time <= t_s2_begin + stim2_duration)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
 /*----------------------------------------
 Main function
 -----------------------------------------*/
@@ -610,7 +627,7 @@ int main(int argc, char *argv[])
         fprintf(stderr, "Number of threads must greater than 0\n");
         exit(1);
     }
-    if (strcmp(method, "FE") != 0 && strcmp(method, "ADI") != 0)
+    if (strcmp(method, "FE") != 0 && strcmp(method, "ADI") != 0 && strcmp(method, "FE2") != 0)
     {
         fprintf(stderr, "Method must be FE (forward Euler) or ADI\n");
         exit(1);
@@ -672,6 +689,8 @@ int main(int argc, char *argv[])
         solution[i] = (double *)malloc(N * sizeof(double));
     }
     
+    double Vik, X_r1ik, X_r2ik, X_sik, mik, hik, jik, dik, fik, f2ik, fCassik, sik, rik, Ca_iik, Ca_SRik, Ca_SSik, R_primeik, Na_iik, K_iik;
+
     double I_total = 0.0;
     double D_long = sigma_long / (1.0 * beta);
     double D_trans = sigma_trans / (1.0 * beta);
@@ -680,8 +699,13 @@ int main(int argc, char *argv[])
 
     // Initialize variables
     initialize_variables(N, V, V_temp, X_r1, X_r2, X_s, m, h, j, d, f, f2, fCass, s, r, Ca_i, Ca_SR, Ca_SS, R_prime, Na_i, K_i);
-    double time = 0.0;
     int step = 0;
+    int M = simulation_time / dt_pde;
+    double *time = (double *)malloc(M * sizeof(double));
+    for (int i = 0; i < M; i++)
+    {
+        time[i] = i * dt_pde;
+    }
     int M_ode = dt_pde / dt_ode;
     int n_ode = 0;
     int x_lim = s1_x_limit / dx;
@@ -746,82 +770,102 @@ int main(int argc, char *argv[])
     // Forward Euler
     if (strcmp(method, "FE") == 0)
     {
-
         // Forward Euler
         #pragma omp parallel num_threads(num_threads) default(none) \
-        private(i, k, I_stim, dR_prime_dt, dCa_SR_dt, dCa_SS_dt, dCa_i_dt, dNa_i_dt, dK_i_dt, I_total) \
-        shared(N, V, V_temp, X_r1, X_r2, X_s, m, h, j, d, f, f2, fCass, s, r, Ca_i, Ca_SR, Ca_SS,                                                                              \
-        R_prime, Na_i, K_i, k4, V_C, V_SS, V_SR, F, Cm, time, dt_ode, stim_strength, \
+        private(i, k, I_stim, dR_prime_dt, dCa_SR_dt, dCa_SS_dt, dCa_i_dt, dNa_i_dt, dK_i_dt, I_total, \
+        Vik, X_r1ik, X_r2ik, X_sik, mik, hik, jik, dik, fik, f2ik, fCassik, sik, rik, Ca_iik, Ca_SRik, Ca_SSik, R_primeik, Na_iik, K_iik) \
+        shared(N, V, V_temp, X_r1, X_r2, X_s, m, h, j, d, f, f2, fCass, s, r, Ca_i, Ca_SR, Ca_SS, \
+        R_prime, Na_i, K_i, k4, V_C, V_SS, V_SR, F, Cm, dt_ode, stim_strength, \
         stim_duration, stim2_duration, t_s1_begin, t_s2_begin, x_lim, x_min, x_max, y_max, y_min, \
-        zeta_long, zeta_trans, \
+        zeta_long, zeta_trans, start, time, M, \
         start_ode, finish_ode, elapsed_ode, start_pde, finish_pde, elapsed_pde, simulation_time, step)
         {
-            for (step = 0; time < simulation_time; step++)
+            while (step < M)
             {   
                 // Do just once
                 #pragma omp master
                 {
-                    time += dt_ode;
                     // Check ODEs time
                     start_ode = omp_get_wtime();
                 }
                 #pragma omp barrier
-                if (step == 0 ) printf("Time1: %lf\n", time);
+                
                 // ODEs - Reaction
                 #pragma omp for collapse(2)
                 for (i = 1; i < N - 1; i++)
                 {   
                     for (k = 1; k < N - 1; k++)
-                    {   if (step == 0 && k ==1 && i ==1) printf("Time: %lf\n", time);
+                    {   
+                        if (time_to_stimulate(time[step]) == false)
+                        {
+                            I_stim = 0.0;
+                        }
                         // Stimulus 1
-                        if (time >= t_s1_begin && time <= t_s1_begin + stim_duration && k <= x_lim)
+                        else if (k <= x_lim)
                         {
                             I_stim = stim_strength;
                         }
                         // Stimulus 2
-                        else if (time >= t_s2_begin && time <= t_s2_begin + stim2_duration && k >= x_min && k <= x_max && i >= y_min && i <= y_max)
+                        else if (k >= x_min && k <= x_max && i >= y_min && i <= y_max)
                         {
                             I_stim = stim_strength;
                         }
-                        else
-                        {
-                            I_stim = 0.0;
-                        }
+
+                        // Get values at current time step and space
+                        Vik = V[i][k];
+                        X_r1ik = X_r1[i][k];
+                        X_r2ik = X_r2[i][k];
+                        X_sik = X_s[i][k];
+                        mik = m[i][k];
+                        hik = h[i][k];
+                        jik = j[i][k];
+                        dik = d[i][k];
+                        fik = f[i][k];
+                        f2ik = f2[i][k];
+                        fCassik = fCass[i][k];
+                        sik = s[i][k];
+                        rik = r[i][k];
+                        Ca_iik = Ca_i[i][k];
+                        Ca_SRik = Ca_SR[i][k];
+                        Ca_SSik = Ca_SS[i][k];
+                        R_primeik = R_prime[i][k];
+                        Na_iik = Na_i[i][k];
+                        K_iik = K_i[i][k];
 
                         // Update total current
-                        I_total = I_stim + I_Na(V[i][k], m[i][k], h[i][k], j[i][k], Na_i[i][k]) + I_bNa(V[i][k], Na_i[i][k]) + I_K1(V[i][k], K_i[i][k]) + I_to(V[i][k], r[i][k], s[i][k], K_i[i][k]) + I_Kr(V[i][k], X_r1[i][k], X_r2[i][k], K_i[i][k]) + I_Ks(V[i][k], X_s[i][k], K_i[i][k], Na_i[i][k]) + I_CaL(V[i][k], d[i][k], f[i][k], f2[i][k], fCass[i][k], Ca_SS[i][k]) + I_NaK(V[i][k], Na_i[i][k]) + I_NaCa(V[i][k], Na_i[i][k], Ca_i[i][k]) + I_pCa(V[i][k], Ca_i[i][k]) + I_pK(V[i][k], K_i[i][k]) + I_bCa(V[i][k], Ca_i[i][k]);
+                        I_total = I_stim + I_Na(Vik, mik, hik, jik, Na_iik) + I_bNa(Vik, Na_iik) + I_K1(Vik, K_iik) + I_to(Vik, rik, sik, K_iik) + I_Kr(Vik, X_r1ik, X_r2ik, K_iik) + I_Ks(Vik, X_sik, K_iik, Na_iik) + I_CaL(Vik, dik, fik, f2ik, fCassik, Ca_SSik) + I_NaK(Vik, Na_iik) + I_NaCa(Vik, Na_iik, Ca_iik) + I_pCa(Vik, Ca_iik) + I_pK(Vik, K_iik) + I_bCa(Vik, Ca_iik);
 
                         // Update voltage
-                        V_temp[i][k] = V[i][k] + (-I_total) * dt_ode;
+                        V_temp[i][k] = Vik + (-I_total) * dt_ode;
 
                         // Update concentrations
-                        dR_prime_dt = ((-k2(Ca_SS[i][k])) * Ca_SS[i][k] * R_prime[i][k]) + (k4 * (1.0 - R_prime[i][k]));
-                        dCa_i_dt = Ca_ibufc(Ca_i[i][k]) * (((((I_leak(Ca_SR[i][k], Ca_i[i][k]) - I_up(Ca_i[i][k])) * V_SR) / V_C) + I_xfer(Ca_SS[i][k], Ca_i[i][k])) - ((((I_bCa(V[i][k], Ca_i[i][k]) + I_pCa(V[i][k], Ca_i[i][k])) - (2.0 * I_NaCa(V[i][k], Na_i[i][k], Ca_i[i][k]))) * Cm) / (2.0 * V_C * F)));
-                        dCa_SR_dt = Ca_srbufsr(Ca_SR[i][k]) * (I_up(Ca_i[i][k]) - (I_rel(Ca_SR[i][k], Ca_SS[i][k], R_prime[i][k]) + I_leak(Ca_SR[i][k], Ca_i[i][k])));
-                        dCa_SS_dt = Ca_ssbufss(Ca_SS[i][k]) * (((((-I_CaL(V[i][k], d[i][k], f[i][k], f2[i][k], fCass[i][k], Ca_SS[i][k])) * Cm) / (2.0 * V_SS * F)) + ((I_rel(Ca_SR[i][k], Ca_SS[i][k], R_prime[i][k]) * V_SR) / V_SS)) - ((I_xfer(Ca_SS[i][k], Ca_i[i][k]) * V_C) / V_SS));
-                        dNa_i_dt = ((-(I_Na(V[i][k], m[i][k], h[i][k], j[i][k], Na_i[i][k]) + I_bNa(V[i][k], Na_i[i][k]) + (3.0 * I_NaK(V[i][k], Na_i[i][k])) + (3.0 * I_NaCa(V[i][k], Na_i[i][k], Ca_i[i][k])))) / (V_C * F)) * Cm;
-                        dK_i_dt = ((-((I_stim + I_K1(V[i][k], K_i[i][k]) + I_to(V[i][k], r[i][k], s[i][k], K_i[i][k]) + I_Kr(V[i][k], X_r1[i][k], X_r2[i][k], K_i[i][k]) + I_Ks(V[i][k], X_s[i][k], K_i[i][k], Na_i[i][k]) + I_pK(V[i][k], K_i[i][k])) - (2.0 * I_NaK(V[i][k], Na_i[i][k])))) / (V_C * F)) * Cm;
+                        dR_prime_dt = ((-k2(Ca_SSik)) * Ca_SSik * R_primeik) + (k4 * (1.0 - R_primeik));
+                        dCa_i_dt = Ca_ibufc(Ca_iik) * (((((I_leak(Ca_SRik, Ca_iik) - I_up(Ca_iik)) * V_SR) / V_C) + I_xfer(Ca_SSik, Ca_iik)) - ((((I_bCa(Vik, Ca_iik) + I_pCa(Vik, Ca_iik)) - (2.0 * I_NaCa(Vik, Na_iik, Ca_iik))) * Cm) / (2.0 * V_C * F)));
+                        dCa_SR_dt = Ca_srbufsr(Ca_SRik) * (I_up(Ca_iik) - (I_rel(Ca_SRik, Ca_SSik, R_primeik) + I_leak(Ca_SRik, Ca_iik)));
+                        dCa_SS_dt = Ca_ssbufss(Ca_SSik) * (((((-I_CaL(Vik, dik, fik, f2ik, fCassik, Ca_SSik)) * Cm) / (2.0 * V_SS * F)) + ((I_rel(Ca_SRik, Ca_SSik, R_primeik) * V_SR) / V_SS)) - ((I_xfer(Ca_SSik, Ca_iik) * V_C) / V_SS));
+                        dNa_i_dt = ((-(I_Na(Vik, mik, hik, jik, Na_iik) + I_bNa(Vik, Na_iik) + (3.0 * I_NaK(Vik, Na_iik)) + (3.0 * I_NaCa(Vik, Na_iik, Ca_iik)))) / (V_C * F)) * Cm;
+                        dK_i_dt = ((-((I_stim + I_K1(Vik, K_iik) + I_to(Vik, rik, sik, K_iik) + I_Kr(Vik, X_r1ik, X_r2ik, K_iik) + I_Ks(Vik, X_sik, K_iik, Na_iik) + I_pK(Vik, K_iik)) - (2.0 * I_NaK(Vik, Na_iik)))) / (V_C * F)) * Cm;
 
-                        R_prime[i][k] = R_prime[i][k] + dR_prime_dt * dt_ode;
-                        Ca_SR[i][k] = Ca_SR[i][k] + dCa_SR_dt * dt_ode;
-                        Ca_SS[i][k] = Ca_SS[i][k] + dCa_SS_dt * dt_ode;
-                        Ca_i[i][k] = Ca_i[i][k] + dCa_i_dt * dt_ode;
-                        Na_i[i][k] = Na_i[i][k] + dNa_i_dt * dt_ode;
-                        K_i[i][k] = K_i[i][k] + dK_i_dt * dt_ode;
+                        R_prime[i][k] = R_primeik + dR_prime_dt * dt_ode;
+                        Ca_SR[i][k] = Ca_SRik + dCa_SR_dt * dt_ode;
+                        Ca_SS[i][k] = Ca_SSik + dCa_SS_dt * dt_ode;
+                        Ca_i[i][k] = Ca_iik + dCa_i_dt * dt_ode;
+                        Na_i[i][k] = Na_iik + dNa_i_dt * dt_ode;
+                        K_i[i][k] = K_iik + dK_i_dt * dt_ode;
 
                         // Update gating variables - Rush Larsen
-                        X_r1[i][k] = x_r1_inf(V[i][k]) - (x_r1_inf(V[i][k]) - X_r1[i][k]) * exp(-dt_ode / tau_x_r1(V[i][k]));
-                        X_r2[i][k] = x_r2_inf(V[i][k]) - (x_r2_inf(V[i][k]) - X_r2[i][k]) * exp(-dt_ode / tau_x_r2(V[i][k]));
-                        X_s[i][k] = x_s_inf(V[i][k]) - (x_s_inf(V[i][k]) - X_s[i][k]) * exp(-dt_ode / tau_x_s(V[i][k]));
-                        r[i][k] = r_inf(V[i][k]) - (r_inf(V[i][k]) - r[i][k]) * exp(-dt_ode / tau_r(V[i][k]));
-                        s[i][k] = s_inf(V[i][k]) - (s_inf(V[i][k]) - s[i][k]) * exp(-dt_ode / tau_s(V[i][k]));
-                        m[i][k] = m_inf(V[i][k]) - (m_inf(V[i][k]) - m[i][k]) * exp(-dt_ode / tau_m(V[i][k]));
-                        h[i][k] = h_inf(V[i][k]) - (h_inf(V[i][k]) - h[i][k]) * exp(-dt_ode / tau_h(V[i][k]));
-                        j[i][k] = j_inf(V[i][k]) - (j_inf(V[i][k]) - j[i][k]) * exp(-dt_ode / tau_j(V[i][k]));
-                        d[i][k] = d_inf(V[i][k]) - (d_inf(V[i][k]) - d[i][k]) * exp(-dt_ode / tau_d(V[i][k]));
-                        f[i][k] = f_inf(V[i][k]) - (f_inf(V[i][k]) - f[i][k]) * exp(-dt_ode / tau_f(V[i][k]));
-                        f2[i][k] = f2_inf(V[i][k]) - (f2_inf(V[i][k]) - f2[i][k]) * exp(-dt_ode / tau_f2(V[i][k]));
-                        fCass[i][k] = fCass_inf(V[i][k]) - (fCass_inf(V[i][k]) - fCass[i][k]) * exp(-dt_ode / tau_fCass(V[i][k]));
+                        X_r1[i][k] = x_r1_inf(Vik) - (x_r1_inf(Vik) - X_r1ik) * exp(-dt_ode / tau_x_r1(Vik));
+                        X_r2[i][k] = x_r2_inf(Vik) - (x_r2_inf(Vik) - X_r2ik) * exp(-dt_ode / tau_x_r2(Vik));
+                        X_s[i][k] = x_s_inf(Vik) - (x_s_inf(Vik) - X_sik) * exp(-dt_ode / tau_x_s(Vik));
+                        r[i][k] = r_inf(Vik) - (r_inf(Vik) - rik) * exp(-dt_ode / tau_r(Vik));
+                        s[i][k] = s_inf(Vik) - (s_inf(Vik) - sik) * exp(-dt_ode / tau_s(Vik));
+                        m[i][k] = m_inf(Vik) - (m_inf(Vik) - mik) * exp(-dt_ode / tau_m(Vik));
+                        h[i][k] = h_inf(Vik) - (h_inf(Vik) - hik) * exp(-dt_ode / tau_h(Vik));
+                        j[i][k] = j_inf(Vik) - (j_inf(Vik) - jik) * exp(-dt_ode / tau_j(Vik));
+                        d[i][k] = d_inf(Vik) - (d_inf(Vik) - dik) * exp(-dt_ode / tau_d(Vik));
+                        f[i][k] = f_inf(Vik) - (f_inf(Vik) - fik) * exp(-dt_ode / tau_f(Vik));
+                        f2[i][k] = f2_inf(Vik) - (f2_inf(Vik) - f2ik) * exp(-dt_ode / tau_f2(Vik));
+                        fCass[i][k] = fCass_inf(Vik) - (fCass_inf(Vik) - fCassik) * exp(-dt_ode / tau_fCass(Vik));
                     }
                 }
 
@@ -863,6 +907,7 @@ int main(int argc, char *argv[])
 
                 #pragma omp master
                 {
+                    step++;
                     // Check PDE time
                     finish_pde = omp_get_wtime();
                     elapsed_pde += finish_pde - start_pde;
@@ -903,7 +948,156 @@ int main(int argc, char *argv[])
         }
     }
 
+    else if (strcmp(method, "FE2") == 0)
+    {
+        // Forward Euler - old version
+        {
+            while (step < M)
+            {   
+                
+                // Check ODEs time
+                start_ode = omp_get_wtime();
+                
+                // ODEs - Reaction
+                #pragma omp parallel for collapse(2) num_threads(num_threads) default(none) \
+                private(i, k, I_stim, dR_prime_dt, dCa_SR_dt, dCa_SS_dt, dCa_i_dt, dNa_i_dt, dK_i_dt, I_total, step, \
+                Vik, X_r1ik, X_r2ik, X_sik, mik, hik, jik, dik, fik, f2ik, fCassik, sik, rik, Ca_iik, Ca_SRik, Ca_SSik, R_primeik, Na_iik, K_iik) \
+                shared(N, V, V_temp, X_r1, X_r2, X_s, m, h, j, d, f, f2, fCass, s, r, Ca_i, Ca_SR, Ca_SS, \
+                R_prime, Na_i, K_i, k4, V_C, V_SS, V_SR, F, Cm, dt_ode, stim_strength, \
+                stim_duration, stim2_duration, t_s1_begin, t_s2_begin, x_lim, x_min, x_max, y_max, y_min, \
+                zeta_long, zeta_trans, time)
+                for (i = 1; i < N - 1; i++)
+                {   
+                    for (k = 1; k < N - 1; k++)
+                    {   
+                        if (time_to_stimulate(time[step]) == false)
+                        {
+                            I_stim = 0.0;
+                        }
+                        // Stimulus 1
+                        else if (k <= x_lim)
+                        {
+                            I_stim = stim_strength;
+                        }
+                        // Stimulus 2
+                        else if (k >= x_min && k <= x_max && i >= y_min && i <= y_max)
+                        {
+                            I_stim = stim_strength;
+                        }
+
+                        // Get values at current time step and space
+                        Vik = V[i][k];
+                        X_r1ik = X_r1[i][k];
+                        X_r2ik = X_r2[i][k];
+                        X_sik = X_s[i][k];
+                        mik = m[i][k];
+                        hik = h[i][k];
+                        jik = j[i][k];
+                        dik = d[i][k];
+                        fik = f[i][k];
+                        f2ik = f2[i][k];
+                        fCassik = fCass[i][k];
+                        sik = s[i][k];
+                        rik = r[i][k];
+                        Ca_iik = Ca_i[i][k];
+                        Ca_SRik = Ca_SR[i][k];
+                        Ca_SSik = Ca_SS[i][k];
+                        R_primeik = R_prime[i][k];
+                        Na_iik = Na_i[i][k];
+                        K_iik = K_i[i][k];
+
+                        // Update total current
+                        I_total = I_stim + I_Na(Vik, mik, hik, jik, Na_iik) + I_bNa(Vik, Na_iik) + I_K1(Vik, K_iik) + I_to(Vik, rik, sik, K_iik) + I_Kr(Vik, X_r1ik, X_r2ik, K_iik) + I_Ks(Vik, X_sik, K_iik, Na_iik) + I_CaL(Vik, dik, fik, f2ik, fCassik, Ca_SSik) + I_NaK(Vik, Na_iik) + I_NaCa(Vik, Na_iik, Ca_iik) + I_pCa(Vik, Ca_iik) + I_pK(Vik, K_iik) + I_bCa(Vik, Ca_iik);
+
+                        // Update voltage
+                        V_temp[i][k] = Vik + (-I_total) * dt_ode;
+
+                        // Update concentrations
+                        dR_prime_dt = ((-k2(Ca_SSik)) * Ca_SSik * R_primeik) + (k4 * (1.0 - R_primeik));
+                        dCa_i_dt = Ca_ibufc(Ca_iik) * (((((I_leak(Ca_SRik, Ca_iik) - I_up(Ca_iik)) * V_SR) / V_C) + I_xfer(Ca_SSik, Ca_iik)) - ((((I_bCa(Vik, Ca_iik) + I_pCa(Vik, Ca_iik)) - (2.0 * I_NaCa(Vik, Na_iik, Ca_iik))) * Cm) / (2.0 * V_C * F)));
+                        dCa_SR_dt = Ca_srbufsr(Ca_SRik) * (I_up(Ca_iik) - (I_rel(Ca_SRik, Ca_SSik, R_primeik) + I_leak(Ca_SRik, Ca_iik)));
+                        dCa_SS_dt = Ca_ssbufss(Ca_SSik) * (((((-I_CaL(Vik, dik, fik, f2ik, fCassik, Ca_SSik)) * Cm) / (2.0 * V_SS * F)) + ((I_rel(Ca_SRik, Ca_SSik, R_primeik) * V_SR) / V_SS)) - ((I_xfer(Ca_SSik, Ca_iik) * V_C) / V_SS));
+                        dNa_i_dt = ((-(I_Na(Vik, mik, hik, jik, Na_iik) + I_bNa(Vik, Na_iik) + (3.0 * I_NaK(Vik, Na_iik)) + (3.0 * I_NaCa(Vik, Na_iik, Ca_iik)))) / (V_C * F)) * Cm;
+                        dK_i_dt = ((-((I_stim + I_K1(Vik, K_iik) + I_to(Vik, rik, sik, K_iik) + I_Kr(Vik, X_r1ik, X_r2ik, K_iik) + I_Ks(Vik, X_sik, K_iik, Na_iik) + I_pK(Vik, K_iik)) - (2.0 * I_NaK(Vik, Na_iik)))) / (V_C * F)) * Cm;
+
+                        R_prime[i][k] = R_primeik + dR_prime_dt * dt_ode;
+                        Ca_SR[i][k] = Ca_SRik + dCa_SR_dt * dt_ode;
+                        Ca_SS[i][k] = Ca_SSik + dCa_SS_dt * dt_ode;
+                        Ca_i[i][k] = Ca_iik + dCa_i_dt * dt_ode;
+                        Na_i[i][k] = Na_iik + dNa_i_dt * dt_ode;
+                        K_i[i][k] = K_iik + dK_i_dt * dt_ode;
+
+                        // Update gating variables - Rush Larsen
+                        X_r1[i][k] = x_r1_inf(Vik) - (x_r1_inf(Vik) - X_r1ik) * exp(-dt_ode / tau_x_r1(Vik));
+                        X_r2[i][k] = x_r2_inf(Vik) - (x_r2_inf(Vik) - X_r2ik) * exp(-dt_ode / tau_x_r2(Vik));
+                        X_s[i][k] = x_s_inf(Vik) - (x_s_inf(Vik) - X_sik) * exp(-dt_ode / tau_x_s(Vik));
+                        r[i][k] = r_inf(Vik) - (r_inf(Vik) - rik) * exp(-dt_ode / tau_r(Vik));
+                        s[i][k] = s_inf(Vik) - (s_inf(Vik) - sik) * exp(-dt_ode / tau_s(Vik));
+                        m[i][k] = m_inf(Vik) - (m_inf(Vik) - mik) * exp(-dt_ode / tau_m(Vik));
+                        h[i][k] = h_inf(Vik) - (h_inf(Vik) - hik) * exp(-dt_ode / tau_h(Vik));
+                        j[i][k] = j_inf(Vik) - (j_inf(Vik) - jik) * exp(-dt_ode / tau_j(Vik));
+                        d[i][k] = d_inf(Vik) - (d_inf(Vik) - dik) * exp(-dt_ode / tau_d(Vik));
+                        f[i][k] = f_inf(Vik) - (f_inf(Vik) - fik) * exp(-dt_ode / tau_f(Vik));
+                        f2[i][k] = f2_inf(Vik) - (f2_inf(Vik) - f2ik) * exp(-dt_ode / tau_f2(Vik));
+                        fCass[i][k] = fCass_inf(Vik) - (fCass_inf(Vik) - fCassik) * exp(-dt_ode / tau_fCass(Vik));
+                    }
+                }
+
+                // Check ODE time
+                finish_ode = omp_get_wtime();
+                elapsed_ode += finish_ode - start_ode;
+
+                // Boundary Conditions for a square tissue
+                #pragma omp parallel for num_threads(num_threads) default(none) \
+                private(i) \
+                shared(V_temp, N)
+                for (i = 0; i < N; i++)
+                {
+                    V_temp[i][0] = V_temp[i][1];
+                    V_temp[i][N - 1] = V_temp[i][N - 2];
+                    V_temp[0][i] = V_temp[1][i];
+                    V_temp[N - 1][i] = V_temp[N - 2][i];
+                }
+
+                // Check PDE time
+                start_pde = omp_get_wtime();
+                
+                // PDEs - Diffusion
+                #pragma omp parallel for collapse(2) num_threads(num_threads) default(none) \
+                private(i, k) \
+                shared(N, V, V_temp, zeta_long, zeta_trans)
+                for (i = 1; i < N - 1; i++)
+                {
+                    for (k = 1; k < N - 1; k++)
+                    {
+                        V[i][k] = V_temp[i][k] + (zeta_long * ((V_temp[i - 1][k] - 2.0 * V_temp[i][k] + V_temp[i + 1][k]))) + (zeta_trans* ((V_temp[i][k - 1] - 2.0 * V_temp[i][k] + V_temp[i][k + 1])));
+                    }
+                }
+
+                step++;
+                // Check PDE time
+                finish_pde = omp_get_wtime();
+                elapsed_pde += finish_pde - start_pde;
+                
+                
+                // Boundary Conditions for a square tissue
+                #pragma omp parallel for num_threads(num_threads) default(none) \
+                private(i) \
+                shared(N, V)
+                for (i = 0; i < N; i++)
+                {
+                    V[i][0] = V[i][1];
+                    V[i][N - 1] = V[i][N - 2];
+                    V[0][i] = V[1][i];
+                    V[N - 1][i] = V[N - 2][i];
+                }
+            }
+        }
+    }
+
+
     // ADI
+    /* 
     else
     {
         // ADI
@@ -917,7 +1111,7 @@ int main(int argc, char *argv[])
             // ODEs - Reaction
             #pragma omp parallel for collapse(2) num_threads(num_threads) default(none) \
             private(i, k, I_stim, dR_prime_dt, dCa_SR_dt, dCa_SS_dt, dCa_i_dt, dNa_i_dt, dK_i_dt, I_total, n_ode) \
-            shared(N, V, V_temp, right, X_r1, X_r2, X_s, m, h, j, d, f, f2, fCass, s, r, Ca_i, Ca_SR, Ca_SS,                                                                              \
+            shared(N, V, V_temp, right, X_r1, X_r2, X_s, m, h, j, d, f, f2, fCass, s, r, Ca_i, Ca_SR, Ca_SS, \
             R_prime, Na_i, K_i, k4, V_C, V_SS, V_SR, F, Cm, time, dt_ode, stim_strength, \
             stim_duration, stim2_duration, t_s1_begin, t_s2_begin, x_lim, x_min, x_max, y_min, y_max, M_ode)
             for (i = 1; i < N - 1; i++)
@@ -1049,10 +1243,10 @@ int main(int argc, char *argv[])
             {
                 printf("S1 velocity: %lf\n", ((20 - x_lim) / (time)));
                 tag = false;
-            } */
+            } 
         }
     }
-
+ */
     // Check time
     finish = omp_get_wtime();
     elapsed = finish - start;
@@ -1061,7 +1255,7 @@ int main(int argc, char *argv[])
     fprintf(fp, "%s | dt_ode = %.2f | dt_pde = %.2f | %d threads | ODE: %.4f | PDE: %.4f -> total time: %.4f\n", method, dt_ode, dt_pde, num_threads, elapsed_ode, elapsed_pde, elapsed);
     // fprintf(fp, "ODE: %.4f and PDE: %.4f\n\n", elapsed_ode, elapsed_pde);
     // printf("\nElapsed time = %e seconds\n%d time steps recorded\n", elapsed, count);
-    printf("\nElapsed time = %e seconds\n", elapsed);
+    printf("\nElapsed time = %e seconds\n", elapsed); printf("Total steps: %d\n", step);
     
     // Write last time step to file
     for (int i = 0; i < N; i++)
