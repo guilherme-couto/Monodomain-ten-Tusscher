@@ -496,8 +496,7 @@ double Ca_ssbufss(double Ca_SS) // !!!
 /*----------------------------------------
 Simulation parameters
 -----------------------------------------*/
-
-double simulation_time = 800;   // End time -> ms
+double simulation_time = 200;   // End time -> ms
 double dx = 0.01;               // Spatial step -> cm
 double dy = 0.01;               // Spatial step -> cm
 int L = 2;                      // Length of the domain (square tissue) -> cm
@@ -509,7 +508,7 @@ double stim_strength = -38;         // Stimulation strength -> uA/cm^2 (???)
 double t_s1_begin = 0.0;            // Stimulation start time -> ms
 double stim_duration = 2.0;         // Stimulation duration -> ms
 double stim2_duration = 2.0;        // Stimulation duration -> ms
-double t_s2_begin = 301;            // Stimulation start time -> ms
+double t_s2_begin = 300;            // Stimulation start time -> ms
 double s1_x_limit = 0.04;           // Stimulation x limit -> cm
 double s2_x_max = 1.0;              // Stimulation x max -> cm
 double s2_y_max = 1.0;              // Stimulation y limit -> cm
@@ -751,9 +750,9 @@ int main(int argc, char *argv[])
     bool tag = true;
 
     // Start timer
-    double start, finish, elapsed;
-    double elapsed_ode = 0, elapsed_pde = 0;
-    double start_ode, finish_ode, start_pde, finish_pde;
+    double start, finish, elapsed = 0.0;
+    double start_ode, finish_ode, elapsed_ode = 0.0;
+    double start_pde, finish_pde, elapsed_pde = 0.0;
 
     start = omp_get_wtime();
 
@@ -830,8 +829,8 @@ int main(int argc, char *argv[])
                             I_total = I_stim + I_Na(Vik, mik, hik, jik, Na_iik) + I_bNa(Vik, Na_iik) + I_K1(Vik, K_iik) + I_to(Vik, rik, sik, K_iik) + I_Kr(Vik, X_r1ik, X_r2ik, K_iik) + I_Ks(Vik, X_sik, K_iik, Na_iik) + I_CaL(Vik, dik, fik, f2ik, fCassik, Ca_SSik) + I_NaK(Vik, Na_iik) + I_NaCa(Vik, Na_iik, Ca_iik) + I_pCa(Vik, Ca_iik) + I_pK(Vik, K_iik) + I_bCa(Vik, Ca_iik);
 
                             // Update voltage
-                            Vik = Vik + (-I_total) * dt_ode;
-                            V_temp[i][k] = Vik;
+                            V[i][k] = Vik + (-I_total) * dt_ode;
+                            V_temp[i][k] = V[i][k];
 
                             // Update concentrations
                             dR_prime_dt = ((-k2(Ca_SSik)) * Ca_SSik * R_primeik) + (k4 * (1.0 - R_primeik));
@@ -1367,8 +1366,8 @@ int main(int argc, char *argv[])
                             I_total = I_stim + I_Na(Vik, mik, hik, jik, Na_iik) + I_bNa(Vik, Na_iik) + I_K1(Vik, K_iik) + I_to(Vik, rik, sik, K_iik) + I_Kr(Vik, X_r1ik, X_r2ik, K_iik) + I_Ks(Vik, X_sik, K_iik, Na_iik) + I_CaL(Vik, dik, fik, f2ik, fCassik, Ca_SSik) + I_NaK(Vik, Na_iik) + I_NaCa(Vik, Na_iik, Ca_iik) + I_pCa(Vik, Ca_iik) + I_pK(Vik, K_iik) + I_bCa(Vik, Ca_iik);
 
                             // Update voltage
-                            Vik = Vik + (-I_total) * dt_ode;
-                            right[k][i] = Vik;
+                            V[i][k] = Vik + (-I_total) * dt_ode;
+                            right[k][i] = V[i][k];
 
                             // Update concentrations
                             dR_prime_dt = ((-k2(Ca_SSik)) * Ca_SSik * R_primeik) + (k4 * (1.0 - R_primeik));
