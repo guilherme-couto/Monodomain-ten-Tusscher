@@ -496,7 +496,7 @@ double Ca_ssbufss(double Ca_SS) // !!!
 /*----------------------------------------
 Simulation parameters
 -----------------------------------------*/
-double simulation_time = 200;   // End time -> ms
+double simulation_time = 500;   // End time -> ms
 double dx = 0.01;               // Spatial step -> cm
 double dy = 0.01;               // Spatial step -> cm
 int L = 2;                      // Length of the domain (square tissue) -> cm
@@ -1112,35 +1112,35 @@ int main(int argc, char *argv[])
                 }
 
                 #pragma omp master
+                {
+                    // Write to file
+                    if (step % 100 == 0)
                     {
-                        // Write to file
-                        if (step % 100 == 0)
+                        for (int i = 0; i < N; i++)
                         {
-                            for (int i = 0; i < N; i++)
+                            for (int k = 0; k < N; k++)
                             {
-                                for (int k = 0; k < N; k++)
-                                {
-                                    fprintf(fp_all, "%lf\n", V[i][k]);
-                                }
+                                fprintf(fp_all, "%lf\n", V[i][k]);
                             }
-                            fprintf(fp_times, "%lf\n", time[step]);
-                            count++;
                         }
-
-                        // Check S1 velocity
-                        if (V[100][N-1] > 20 && tag)
-                        {
-                            printf("S1 velocity: %lf\n", ((20 - x_lim) / (time[step])));
-                            tag = false;
-                        }
+                        fprintf(fp_times, "%lf\n", time[step]);
+                        count++;
                     }
 
-                    // Update step
-                    #pragma omp master
+                    // Check S1 velocity
+                    if (V[100][N-1] > 20 && tag)
                     {
-                        step++;
+                        printf("S1 velocity: %lf\n", ((20 - x_lim) / (time[step])));
+                        tag = false;
                     }
-                    #pragma omp barrier 
+                }
+
+                // Update step
+                #pragma omp master
+                {
+                    step++;
+                }
+                #pragma omp barrier 
             }
         }
     }
