@@ -123,4 +123,30 @@ double Na_i_init = 8.604;     // Initial intracellular Na+ concentration -> mM
 double K_i_init = 136.89;     // Initial intracellular K+ concentration -> mM
 #endif
 
+/*----------------------------------------
+Initial Conditions for endocardium or M cells
+from https://tbb.bio.uu.nl/khwjtuss/SourceCodes/HVM2/
+-----------------------------------------*/
+#if defined(ENDO) || defined(M)
+double V_init = -86.2;        // Initial membrane potential -> mV
+double X_r1_init = 0.0;       // Initial rapid time-dependent potassium current Xr1 gate -> dimensionless
+double X_r2_init = 1.0;       // Initial rapid time-dependent potassium current Xr2 gate -> dimensionless
+double X_s_init = 0.0;        // Initial slow time-dependent potassium current Xs gate -> dimensionless
+double m_init = 0.0;          // Initial fast sodium current m gate -> dimensionless
+double h_init = 0.75;         // Initial fast sodium current h gate -> dimensionless
+double j_init = 0.75;         // Initial fast sodium current j gate -> dimensionless
+double d_init = 0.0;          // Initial L-type calcium current d gate -> dimensionless
+double f_init = 1.0;          // Initial L-type calcium current f gate -> dimensionless
+double f2_init = 1.0;         // Initial L-type calcium current f2 gate -> dimensionless
+double fCass_init = 1.0;      // Initial L-type calcium current fCass gate -> dimensionless
+double s_init = 1.0;          // Initial transient outward current s gate -> dimensionless
+double r_init = 0.0;          // Initial transient outward current r gate -> dimensionless
+double Ca_i_init = 0.00007;   // Initial intracellular Ca++ concentration -> mM
+double Ca_SR_init = 1.3;      // Initial sarcoplasmic reticulum Ca++ concentration -> mM
+double Ca_SS_init = 0.00007;  // Initial subspace Ca++ concentration -> mM
+double R_prime_init = 1.0;    // Initial ryanodine receptor -> dimensionless
+double Na_i_init = 7.67;      // Initial intracellular Na+ concentration -> mM
+double K_i_init = 138.3;      // Initial intracellular K+ concentration -> mM
+#endif
+
 #endif // PARAMETERS_H

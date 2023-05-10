@@ -110,4 +110,61 @@ double diffusion_j_2nd(int i, int j, int N, double **v)
     return result;
 }
 
+// Normalize voltage
+void normalize_V_2d(int N, double **V)
+{
+    double V_max = V[0][0];
+    double V_min = V[0][0];
+
+    for (int i = 0; i < N; i++)
+    {
+        for (int k = 0; k < N; k++)
+        {
+            if (V[i][k] > V_max)
+            {
+                V_max = V[i][k];
+            }
+            if (V[i][k] < V_min)
+            {
+                V_min = V[i][k];
+            }
+        }
+    }
+
+    double V_range = V_max - V_min;
+
+    for (int i = 0; i < N; i++)
+    {
+        for (int k = 0; k < N; k++)
+        {
+            V[i][k] = (V[i][k] - V_min) / V_range;
+        }
+    }
+}
+
+void normalize_V_1d(int N, double *V)
+{
+    double V_max = V[0];
+    double V_min = V[0];
+
+    for (int i = 0; i < N; i++)
+    {
+        if (V[i] > V_max)
+        {
+            V_max = V[i];
+        }
+        if (V[i] < V_min)
+        {
+            V_min = V[i];
+        }
+    }
+
+    double V_range = V_max - V_min;
+
+    for (int i = 0; i < N; i++)
+    {
+        V[i] = (V[i] - V_min) / V_range;
+    }
+}
+
 #endif // AUXFUNCS_H
