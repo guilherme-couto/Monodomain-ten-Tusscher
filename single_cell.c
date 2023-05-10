@@ -19,7 +19,7 @@ Stimulation parameters
 double stim_strength = -38;          // Stimulation strength -> uA/cm^2 
 
 double t_s1_begin = 0.0;            // Stimulation start time -> ms
-double stim_duration = 2.0;         // Stimulation duration -> ms
+double stim_duration = 1.0;         // Stimulation duration -> ms
 
 
 /*----------------------------------------
