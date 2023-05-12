@@ -4,8 +4,8 @@ Author: Guilherme Couto
 FISIOCOMP - UFJF
 ------------------------------------------------------*/
 
-#include "parameters.h"
-#include "functions.h"
+#include "./include/parameters.h"
+#include "./include/functions.h"
 
 /*-----------------------------------------------------
 Simulation parameters

@@ -9,12 +9,12 @@ dt = sys.argv[1]
 
 # Read data from files
 t = []
-timesfile = f'./simulation-files/sim-times-cell-{dt}.txt'
+timesfile = f'../simulation-files/sim-times-cell-{dt}.txt'
 with open(timesfile, 'r') as f:
     for line in f:
         t.append(float(line))
 
-filename = f'./simulation-files/tnnp-cell-{dt}.txt'
+filename = f'../simulation-files/tnnp-cell-{dt}.txt'
 U = []
 with open(filename, 'r') as f:
     for line in f:
@@ -26,7 +26,7 @@ plt.title(f'Cell TNNP Epi')
 plt.xlabel('t (ms)')
 plt.ylabel('V (mV)')
 
-plt.savefig('cell-epi.png')
+plt.savefig('../png/cell-epi.png')
 plt.close()
 
 

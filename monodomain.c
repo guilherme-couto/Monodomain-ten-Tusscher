@@ -11,8 +11,8 @@ https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3263775/ - Benchmark
 and https://github.com/rsachetto/MonoAlg3D_C/blob/master/src/models_library/ten_tusscher/ten_tusscher_2006_RS_CPU.c - Sachetto MonoAlg3D
 --------------------------------------------------------*/
 
-#include "parameters.h"
-#include "functions.h"
+#include "./include/parameters.h"
+#include "./include/functions.h"
 
 /*-----------------------------------------------------
 Model parameters

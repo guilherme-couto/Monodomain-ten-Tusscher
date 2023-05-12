@@ -14,14 +14,14 @@ dt = sys.argv[2]
 
 # Read data from files
 t = []
-timesfile = f'./simulation-files/sim-times-{method}-{dt}.txt'
+timesfile = f'../simulation-files/sim-times-{method}-{dt}.txt'
 with open(timesfile, 'r') as f:
     for line in f:
         t.append(float(line))
 
 totalframes = len(t)
 
-filename = f'./simulation-files/tnnp-{method}-{dt}.txt'
+filename = f'../simulation-files/tnnp-{method}-{dt}.txt'
 U = np.zeros((totalframes, 100, 100))
 with open(filename, 'r') as f:
     for n in range(totalframes):
@@ -48,10 +48,10 @@ for n in range(len(U)):
         plt.close()
 
 # Build gif
-if not os.path.exists('./gif'):
-    os.mkdir('./gif')
+if not os.path.exists('../gif'):
+    os.mkdir('../gif')
     
-with imageio.v2.get_writer(f'./gif/gif-{method}-{dt}.gif', mode='I') as writer:
+with imageio.v2.get_writer(f'../gif/gif-{method}-{dt}.gif', mode='I') as writer:
     for plot in plots:
         image = imageio.v2.imread(plot)
         writer.append_data(image)
