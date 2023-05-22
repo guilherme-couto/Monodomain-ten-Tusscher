@@ -212,28 +212,19 @@ int main(int argc, char *argv[])
     initialize_variables(N, V, X_r1, X_r2, X_s, m, h, j, d, f, f2, fCass, s, r, Ca_i, Ca_SR, Ca_SS, R_prime, Na_i, K_i);
 
     // Prepare files to save data
-    // Convert dt to string
-    char s_dt[10];
-    sprintf(s_dt, "%.03f", dt);
-
     system("mkdir -p simulation-files");
 
     // Open the file to write for complete gif
-    char fname_complete[100] = "./simulation-files/tnnp-";
-    strcat(fname_complete, method);
-    strcat(fname_complete, "-");
-    strcat(fname_complete, s_dt);
-    strcat(fname_complete, ".txt");
+    char fname_complete[100];
+    sprintf(fname_complete, "./simulation-files/tnnp-mono-%s-%.03f.txt", method, dt);
     FILE *fp_all = NULL;
     fp_all = fopen(fname_complete, "w");
+
     int save_rate = ceil(M / 100.0);
 
     // Open the file to write for times
-    char fname_times[100] = "./simulation-files/sim-times-";
-    strcat(fname_times, method);
-    strcat(fname_times, "-");
-    strcat(fname_times, s_dt);
-    strcat(fname_times, ".txt");
+    char fname_times[100];
+    sprintf(fname_times, "./simulation-files/times-mono-%s-%.03f.txt", method, dt);
     FILE *fp_times = NULL;
     fp_times = fopen(fname_times, "w");
 

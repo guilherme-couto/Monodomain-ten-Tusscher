@@ -13,7 +13,7 @@ dt = sys.argv[1]
 
 # Read data from files
 t = []
-timesfile = f'../simulation-files/sim-times-cable-eq-{dt}.txt'
+timesfile = f'../simulation-files/times-cable-eq-{dt}.txt'
 with open(timesfile, 'r') as f:
     for line in f:
         t.append(float(line))

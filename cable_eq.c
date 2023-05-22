@@ -129,28 +129,19 @@ int main(int argc, char *argv[])
     }
 
     // Prepare files to save data
-    // Convert dt to string
-    char s_dt[10];
-    sprintf(s_dt, "%.03f", dt);
-
     system("mkdir -p simulation-files");
-    
+
     // Open the file to write for complete gif
-    char fname_complete[100] = "./simulation-files/tnnp-";
-    strcat(fname_complete, "cable-eq");
-    strcat(fname_complete, "-");
-    strcat(fname_complete, s_dt);
-    strcat(fname_complete, ".txt");
+    char fname_complete[100];
+    sprintf(fname_complete, "./simulation-files/tnnp-cable-eq-%.03f.txt", dt);
     FILE *fp_all = NULL;
     fp_all = fopen(fname_complete, "w");
+
     int save_rate = ceil(M / 150.0);
 
     // Open the file to write for times
-    char fname_times[100] = "./simulation-files/sim-times-";
-    strcat(fname_times, "cable-eq");
-    strcat(fname_times, "-");
-    strcat(fname_times, s_dt);
-    strcat(fname_times, ".txt");
+    char fname_times[100];
+    sprintf(fname_times, "./simulation-files/times-cable-eq-%.03f.txt", dt);
     FILE *fp_times = NULL;
     fp_times = fopen(fname_times, "w");
 

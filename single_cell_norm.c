@@ -86,27 +86,17 @@ int main(int argc, char *argv[])
     K_i = K_i_init;
 
     // Prepare files to save data
-    // Convert dt to string
-    char s_dt[10];
-    sprintf(s_dt, "%.03f", dt);
-
     system("mkdir -p simulation-files");
 
     // Open the file to write for complete gif
-    char fname_complete[100] = "./simulation-files/tnnp-";
-    strcat(fname_complete, "cell-norm");
-    strcat(fname_complete, "-");
-    strcat(fname_complete, s_dt);
-    strcat(fname_complete, ".txt");
+    char fname_complete[100];
+    sprintf(fname_complete, "./simulation-files/tnnp-cell-norm-%.03f.txt", dt);
     FILE *fp_all = NULL;
     fp_all = fopen(fname_complete, "w");
-    
+
     // Open the file to write for times
-    char fname_times[100] = "./simulation-files/sim-times-";
-    strcat(fname_times, "cell-norm");
-    strcat(fname_times, "-");
-    strcat(fname_times, s_dt);
-    strcat(fname_times, ".txt");
+    char fname_times[100];
+    sprintf(fname_times, "./simulation-files/times-cell-norm-%.03f.txt", dt);
     FILE *fp_times = NULL;
     fp_times = fopen(fname_times, "w");
     

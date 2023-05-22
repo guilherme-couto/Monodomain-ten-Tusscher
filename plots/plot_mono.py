@@ -14,7 +14,7 @@ dt = sys.argv[2]
 
 # Read data from files
 t = []
-timesfile = f'../simulation-files/sim-times-{method}-{dt}.txt'
+timesfile = f'../simulation-files/times-{method}-{dt}.txt'
 with open(timesfile, 'r') as f:
     for line in f:
         t.append(float(line))
