@@ -14,14 +14,14 @@ dt = sys.argv[2]
 
 # Read data from files
 t = []
-timesfile = f'../simulation-files/times-{method}-{dt}.txt'
+timesfile = f'../simulation-files/times-mono-{method}-{dt}.txt'
 with open(timesfile, 'r') as f:
     for line in f:
         t.append(float(line))
 
 totalframes = len(t)
 
-filename = f'../simulation-files/tnnp-{method}-{dt}.txt'
+filename = f'../simulation-files/tnnp-mono-{method}-{dt}.txt'
 U = np.zeros((totalframes, 100, 100))
 with open(filename, 'r') as f:
     for n in range(totalframes):
