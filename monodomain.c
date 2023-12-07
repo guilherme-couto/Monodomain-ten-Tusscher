@@ -75,8 +75,8 @@ int main(int argc, char *argv[])
     }
 
     // Number of steps
-    int N = (int)(L / dx);  // Number of spatial steps (square tissue)
-    int M = (int)(sim_time / dt);  // Number of time steps
+    int N = round(L / dx) + 1;  // Number of spatial steps (square tissue)
+    int M = round(sim_time / dt) + 1;  // Number of time steps
 
     // Variables
     double **V, **X_r1, **X_r2, **X_s, **m, **h, **j, **d, **f, **f2, **fCass, **s, **r, **Ca_i, **Ca_SR, **Ca_SS, **R_prime, **Na_i, **K_i;

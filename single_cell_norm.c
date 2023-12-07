@@ -42,7 +42,7 @@ int main(int argc, char *argv[])
     }
 
     // Number of steps
-    int M = (int)(sim_time / dt);  // Number of time steps
+    int M = round(sim_time / dt) + 1;  // Number of time steps
 
     // Variables
     double *V_array = (double *)malloc(M * sizeof(double));
